@@ -1,0 +1,24 @@
+<h2>แดชบอร์ด</h2>
+<p>จำนวนการยืมทั้งหมด: {{ borrow_count }}</p>
+<p>จำนวนการยืมที่ยังไม่คืน: {{ borrowed_count }}</p>
+<p>จำนวนการคืน: {{ returned_count }}</p>
+
+<h2>หนังสือที่ค้างส่ง</h2>
+<table>
+    <thead>
+        <tr>
+            <th>รหัสหนังสือ</th>
+            <th>ชื่อผู้ใช้</th>
+            <th>วันที่ยืม</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in overdue_books %}
+        <tr>
+            <td>{{ book.b_id }}</td>
+            <td>{{ book.m_user }}</td>
+            <td>{{ book.b_date_br }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

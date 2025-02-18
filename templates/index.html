@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการห้องสมุด</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>ระบบจัดการห้องสมุด</h1>
+    <nav>
+        <a href="{{ url_for('index') }}">หน้าหลัก</a>
+        <a href="{{ url_for('add_member') }}">เพิ่มสมาชิก</a>
+        <a href="{{ url_for('add_book') }}">เพิ่มหนังสือ</a>
+        <!-- <a href="{{ url_for('dashboard') }}">แดชบอร์ด</a> -->
+        <a href="{{ url_for('borrow_book') }}">ยืมหนังสือ</a>
+        <a href="{{ url_for('return_book') }}">คืนหนังสือ</a>
+    </nav>
+
+    <h2>รายชื่อสมาชิก</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>รหัส</th>
+                <th>ชื่อผู้ใช้</th>
+                <th>ชื่อ-นามสกุล</th>
+                <th>เบอร์โทรศัพท์</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+            <tr>
+                <td>{{ member.id }}</td>
+                <td>{{ member.m_user }}</td>
+                <td>{{ member.m_name }}</td>
+                <td>{{ member.m_phone }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>รายการหนังสือ</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>รหัส</th>
+                <th>รหัสหนังสือ</th>
+                <th>ชื่อหนังสือ</th>
+                <th>ผู้เขียน</th>
+                <th>หมวดหมู่</th>
+                <th>ราคา</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book.id }}</td>
+                <td>{{ book.b_id }}</td>
+                <td>{{ book.b_name }}</td>
+                <td>{{ book.b_writer }}</td>
+                <td>{{ book.b_category }}</td>
+                <td>{{ book.b_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>สถานะการยืม/คืนหนังสือ</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>รหัสหนังสือ</th>
+                <th>ชื่อหนังสือ</th>
+                <th>ผู้ยืม</th>
+                <th>วันที่ยืม</th>
+                <th>วันที่คืน</th>
+                <th>ค่าปรับ</th>
+                <th>สถานะ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for borrow in borrows %}
+            <tr>
+                <td>{{ borrow.b_id }}</td>
+                <td>{{ borrow.b_name }}</td>
+                <td>{{ borrow.m_name }}</td>
+                <td>{{ borrow.b_date_br }}</td>
+                <td>{{ borrow.b_date_rt if borrow.b_date_rt else 'ยังไม่คืน' }}</td>
+                <td>{{ borrow.br_fine }}</td>
+                <td>
+                    {% if borrow.b_date_rt %}
+                        <span style="color: green;">คืนแล้ว</span>
+                    {% else %}
+                        <span style="color: red;">ยังไม่คืน</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>สรุปจำนวนการยืม/คืน</h2>
+    <p>จำนวนการยืมทั้งหมด: {{ borrows|length }}</p>
+    <p>จำนวนการคืนทั้งหมด: {{ borrows|selectattr('b_date_rt', 'defined')|list|length }}</p>
+</body>
+</html>

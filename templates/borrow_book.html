@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยืมหนังสือ - ระบบจัดการห้องสมุด</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .book-info, .member-info {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .info-title {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>ยืมหนังสือ</h1>
+    
+    <nav>
+        <a href="{{ url_for('index') }}">หน้าหลัก</a>
+        <a href="{{ url_for('add_member') }}">เพิ่มสมาชิก</a>
+        <a href="{{ url_for('add_book') }}">เพิ่มหนังสือ</a>
+        <!-- <a href="{{ url_for('dashboard') }}">แดชบอร์ด</a> -->
+        <a href="{{ url_for('borrow_book') }}">ยืมหนังสือ</a>
+        <a href="{{ url_for('return_book') }}">คืนหนังสือ</a>
+    </nav>
+
+    <div class="form-container">
+        <form method="POST" id="borrowForm">
+            <div class="form-group">
+                <label for="b_id">รหัสหนังสือ <span class="required">*</span></label>
+                <input type="text" id="b_id" name="b_id" required>
+                <div class="error-message" id="book-error">ไม่พบรหัสหนังสือนี้</div>
+                <div class="book-info" id="book-info">
+                    <div class="info-title">ข้อมูลหนังสือ:</div>
+                    <div id="book-details"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="m_user">รหัสสมาชิก <span class="required">*</span></label>
+                <input type="text" id="m_user" name="m_user" required>
+                <div class="error-message" id="member-error">ไม่พบรหัสสมาชิกนี้</div>
+                <div class="member-info" id="member-info">
+                    <div class="info-title">ข้อมูลสมาชิก:</div>
+                    <div id="member-details"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="b_date_br">วันที่ยืม <span class="required">*</span></label>
+                <input type="date" id="b_date_br" name="b_date_br" required>
+            </div>
+            
+            <button type="submit">ยืนยันการยืมหนังสือ</button>
+        </form>
+    </div>
+
+    <div id="message"></div> <!-- แสดงข้อความเมื่อเกิดข้อผิดพลาดหรือสำเร็จ -->
+
+    <script>
+        // ตั้งค่าวันที่เริ่มต้นเป็นวันนี้
+        document.getElementById('b_date_br').valueAsDate = new Date();
+
+        // ฟังก์ชันตรวจสอบรหัสหนังสือ
+        document.getElementById('b_id').addEventListener('blur', function() {
+            const bookInfo = document.getElementById('book-info');
+            const bookError = document.getElementById('book-error');
+            const bookId = this.value;
+
+            // จำลองการตรวจสอบกับฐานข้อมูล
+            if (bookId) {
+                bookInfo.style.display = 'block';
+                bookError.style.display = 'none';
+                // แสดงข้อมูลหนังสือ (ในการใช้งานจริงควรดึงจากฐานข้อมูล)
+                document.getElementById('book-details').innerHTML = 'กำลังตรวจสอบข้อมูลหนังสือ...';
+            }
+        });
+
+        // ฟังก์ชันตรวจสอบรหัสสมาชิก
+        document.getElementById('m_user').addEventListener('blur', function() {
+            const memberInfo = document.getElementById('member-info');
+            const memberError = document.getElementById('member-error');
+            const memberId = this.value;
+
+            // จำลองการตรวจสอบกับฐานข้อมูล
+            if (memberId) {
+                memberInfo.style.display = 'block';
+                memberError.style.display = 'none';
+                // แสดงข้อมูลสมาชิก (ในการใช้งานจริงควรดึงจากฐานข้อมูล)
+                document.getElementById('member-details').innerHTML = 'กำลังตรวจสอบข้อมูลสมาชิก...';
+            }
+        });
+
+        // ป้องกันการยืมย้อนหลัง
+        document.getElementById('b_date_br').addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            if (selectedDate < today) {
+                alert('ไม่สามารถยืมย้อนหลังได้');
+                this.valueAsDate = today;
+            }
+        });
+
+        // ฟังก์ชันตรวจสอบเมื่อกด Submit
+        document.getElementById('borrowForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // ป้องกันการ submit ฟอร์มโดยตรง
+
+            // ดึงค่าจากฟอร์ม
+            const b_id = document.getElementById('b_id').value;
+            const m_user = document.getElementById('m_user').value;
+            const b_date_br = document.getElementById('b_date_br').value;
+
+            // ส่งข้อมูลไปยัง Flask เพื่อประมวลผล
+            fetch('/borrow_book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    b_id: b_id,
+                    m_user: m_user,
+                    b_date_br: b_date_br
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('message').innerText = data; // แสดงข้อความที่ได้รับ
+                if (data === 'Book borrowed successfully!') {
+                    document.getElementById('borrowForm').reset(); // รีเซ็ตฟอร์ม
+                }
+            })
+            .catch(error => {
+                document.getElementById('message').innerText = 'เกิดข้อผิดพลาด: ' + error.message;
+            });
+        });
+    </script>
+</body>
+</html>

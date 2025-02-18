@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มสมาชิก - ระบบจัดการห้องสมุด</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .show-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            width: auto;
+            padding: 5px;
+        }
+
+        .show-password:hover {
+            color: #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>เพิ่มสมาชิกใหม่</h1>
+    
+    <nav>
+        <a href="{{ url_for('index') }}">หน้าหลัก</a>
+        <a href="{{ url_for('add_member') }}">เพิ่มสมาชิก</a>
+        <a href="{{ url_for('add_book') }}">เพิ่มหนังสือ</a>
+        <!-- <a href="{{ url_for('dashboard') }}">แดชบอร์ด</a> -->
+        <a href="{{ url_for('borrow_book') }}">ยืมหนังสือ</a>
+        <a href="{{ url_for('return_book') }}">คืนหนังสือ</a>
+    </nav>
+
+    <div class="form-container">
+        <form method="POST">
+            <div class="form-group">
+                <label for="m_user">ชื่อผู้ใช้ <span class="required">*</span></label>
+                <input type="text" id="m_user" name="m_user" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="m_pass">รหัสผ่าน <span class="required">*</span></label>
+                <div class="password-container">
+                    <input type="password" id="m_pass" name="m_pass" required>
+                    <button type="button" class="show-password" onclick="togglePassword()">แสดง</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="m_name">ชื่อ-นามสกุล <span class="required">*</span></label>
+                <input type="text" id="m_name" name="m_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="m_phone">เบอร์โทรศัพท์ <span class="required">*</span></label>
+                <input type="tel" id="m_phone" name="m_phone" pattern="[0-9]{9,10}" required>
+            </div>
+            
+            <button type="submit">เพิ่มสมาชิก</button>
+        </form>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('m_pass');
+            const toggleButton = document.querySelector('.show-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.textContent = 'ซ่อน';
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.textContent = 'แสดง';
+            }
+        }
+    </script>
+</body>
+</html>
